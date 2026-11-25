@@ -154,9 +154,12 @@ main { padding: 16px 0 42px; }
 .ring-card h3 { font-size: 16px; line-height: 1.35; min-height: 2.7em; }
 .ring-card .scope { display: flex; align-items: center; min-height: 28px; color: var(--muted); font-size: 12px; line-height: 1.4; margin-top: 4px; }
 .ring-switch .season-option { padding: 5px 7px; }
-.ring-switch [data-variant="1"][aria-pressed="true"] { border-color: #ff858a; background: #302030; color: #ffdfe1; }
+.ring-switch-gender [data-variant="1"][aria-pressed="true"] { border-color: #ff858a; background: #302030; color: #ffdfe1; }
 .ring-card:has(.ring-switch) .tooltip { top: 94px; }
-.ring-card:has(.ring-switch [data-variant="1"][aria-pressed="true"]) .ring-total { font-size: clamp(27px, 2.4vw, 35px); }
+.ring-switch-method .season-option { padding-inline: 6px; white-space: nowrap; }
+.ring-card-method .tooltip { inset: auto 10px 12px; }
+.ring-method-note { color: var(--muted); font-size: 11px; line-height: 1.45; margin: 9px 0 0; }
+.ring-card:has(.ring-switch-gender [data-variant="1"][aria-pressed="true"]) .ring-total { font-size: clamp(27px, 2.4vw, 35px); }
 .ring {
   display: grid;
   place-items: center;
@@ -2150,7 +2153,9 @@ const reports = {
   yakov: ['Яков и Партнёры, 2023, с. 5', 'https://yakovpartners.ru/upload/iblock/0e5/lfifq29qgik06e7tw6ds3q0g40tk49j2/Fashion-report_RU.pdf#page=5'],
   datamarket: ['Честный знак, доли продаж (Excel)', 'https://датамаркет.честныйзнак.рф/bi/api/reviews/reports/export_to_excel/f85c5e3f-0457-40e4-977e-b3aad2c94e19'],
   datamarketPrices: ['Честный знак, средние цены (Excel)', 'https://датамаркет.честныйзнак.рф/bi/api/reviews/reports/export_to_excel/0cf78fa3-1231-4fd1-af1e-069eeb982abe'],
-  roshiJackets: ['Каталог ROSHI, мужские куртки', 'https://roshi.fashion/bombersm']
+  roshiJackets: ['Каталог ROSHI, мужские куртки', 'https://roshi.fashion/bombersm'],
+  wbOuterwear: ['StartMarket / WB, «Анализ ниш», 31.08–29.09.2026', 'https://startmarket.pro/articles/reyting-nish-wildberries-odezhda-sentyabr-2026/'],
+  retailOuterwear: ['Another Fashion Agency на Retail.ru, август 2025 — июль 2026', 'https://www.retail.ru/tovar_na_polku/kalendar-sprosa-v-fashion-e-commerce-kogda-i-kakie-tovary-vybirayut-pokupateli/']
 };
 
 const apparel = 2775.801;
@@ -2182,6 +2187,25 @@ const otherJackets = outerwear * (jacketWeights.windbreaker + jacketWeights.bike
 const blue = '#83a8ff';
 const rose = '#ff858a';
 const rest = '#485773';
+
+// Выручка по выкупам WB за 31.08–29.09.2026, в рублях.
+const wbOuterwear = {
+  coats: 3_224_503_750 + 295_476_375, // Пальто и полупальто.
+  roshiJackets: 11_758_669_350 + 1_772_504_625 + 351_796_025, // Куртки, бомберы, парки.
+  otherJackets: 1_770_528_700 + 559_953_500 + 1_319_245_075, // Ветровки, косухи, пуховики.
+  raincoats: 641_203_150 + 520_622_250 // Плащи и тренчкоты.
+};
+const wbOuterwearTotal = Object.values(wbOuterwear).reduce((sum, amount) => sum + amount, 0);
+const wbEstimate = Object.fromEntries(
+  Object.entries(wbOuterwear).map(([group, amount]) => [group, outerwear * amount / wbOuterwearTotal])
+);
+
+// Доли в выручке всех товаров выборки Retail.ru. Переносим только отношение
+// двух опубликованных строк на верхнюю одежду за вычетом плащей по ЧЗ.
+const retailOuterwearShares = {coats: 8.3, jackets: 8.7};
+const retailCoats = (outerwear - raincoats) * retailOuterwearShares.coats /
+  (retailOuterwearShares.coats + retailOuterwearShares.jackets);
+const retailJackets = outerwear - raincoats - retailCoats;
 
 const charts = [
   {
@@ -2221,16 +2245,42 @@ const charts = [
     ]
   },
   {
-    title: 'Мужской middle-up по изделиям', total: middleUp, center: '≈44', unit: 'млрд ₽',
-    scope: 'Расчётная разбивка', sources: [reports.weights, reports.datamarket, reports.datamarketPrices, reports.roshiJackets],
-    parts: [
-      ['Костюмная группа', suits, blue, 'Прокси: 0,098 ÷ 1,209 по весам ИПЦ Росстата. Костюм-двойка представляет группу близких изделий.'],
-      ['Пальто', coats, '#8ed1db', 'Прокси: доля штук (6%) × средняя цена (8 059 ₽), затем нормировка внутри верхней одежды. Панель «Честного знака».'],
-      ['Типы курток из каталога ROSHI', roshiJackets, '#ab95f6', 'Оценка рынка курток, бомберов и парок. Типы подтверждены каталогом ROSHI. Доли рассчитаны по продажам «Честного знака».'],
-      ['Другие куртки', otherJackets, '#f4bf88', 'Ветровки, косухи и пуховики. Отдельных карточек этих типов в проверенном мужском каталоге ROSHI не нашли. Оценка по продажам «Честного знака».'],
-      ['Плащи и тренчи', raincoats, rose, 'Прокси: ≈367 млн ₽. По категории «Плащ» Честного знака: 1,6% продаж в штуках × средняя цена 5 695 ₽, нормировка внутри верхней одежды. Россия, январь–сентябрь 2025, все полы и цены. Структура перенесена на годовой мужской middle-up.'],
-      ['Остальное', middleUp - suits - coats - roshiJackets - otherJackets - raincoats, rest, 'Расчётный остаток мужского middle-up после выделения костюмной группы, пальто, всех курток, плащей и тренчей.']
-    ]
+    title: 'Мужской middle-up по изделиям', variantLabel: 'Метод оценки продаж по изделиям',
+    variants: [{
+      label: 'Росстат/ЧЗ', total: middleUp, center: '≈44', unit: 'млрд ₽',
+      sources: [reports.weights, reports.datamarket, reports.datamarketPrices, reports.roshiJackets],
+      parts: [
+        ['Костюмная группа', suits, blue, 'Прокси: 0,098 ÷ 1,209 по весам ИПЦ Росстата. Костюм-двойка представляет группу близких изделий.'],
+        ['Пальто', coats, '#8ed1db', 'Прокси: доля штук (6%) × средняя цена (8 059 ₽), затем нормировка внутри верхней одежды. Панель «Честного знака».'],
+        ['Типы курток из каталога ROSHI', roshiJackets, '#ab95f6', 'Оценка рынка курток, бомберов и парок. Типы подтверждены каталогом ROSHI. Доли рассчитаны по продажам «Честного знака».'],
+        ['Другие куртки', otherJackets, '#f4bf88', 'Ветровки, косухи и пуховики. Отдельных карточек этих типов в проверенном мужском каталоге ROSHI не нашли. Оценка по продажам «Честного знака».'],
+        ['Плащи и тренчи', raincoats, rose, 'Прокси: ≈367 млн ₽. По категории «Плащ» Честного знака: 1,6% продаж в штуках × средняя цена 5 695 ₽, нормировка внутри верхней одежды. Россия, январь–сентябрь 2025, все полы и цены. Структура перенесена на годовой мужской middle-up.'],
+        ['Остальное', middleUp - suits - coats - roshiJackets - otherJackets - raincoats, rest, 'Расчётный остаток мужского middle-up после выделения костюмной группы, пальто, всех курток, плащей и тренчей.']
+      ]
+    }, {
+      label: 'SmartMarket/WB', total: middleUp, center: '≈44', unit: 'млрд ₽',
+      sources: [reports.wbOuterwear, reports.weights, reports.roshiJackets],
+      methodNote: 'Доли выручки WB за 31.08–29.09.2026 перенесены на ≈11,78 млрд ₽ верхней одежды в модели. WB: все полы и цены. Костюмная группа — по Росстату.',
+      parts: [
+        ['Костюмная группа', suits, blue, 'Оценка по весам ИПЦ Росстата. Категория костюмов WB шире костюмной группы модели.'],
+        ['Пальто', wbEstimate.coats, '#8ed1db', 'Прокси: 11,78 млрд ₽ × (3,22 млрд ₽ выкупов пальто + 0,30 млрд ₽ полупальто) ÷ 22,21 млрд ₽ выкупов выбранной верхней одежды WB.'],
+        ['Типы курток из каталога ROSHI', wbEstimate.roshiJackets, '#ab95f6', 'Прокси: 11,78 млрд ₽ × 13,88 млрд ₽ выкупов курток, бомберов и парок ÷ 22,21 млрд ₽ выкупов выбранной верхней одежды WB.'],
+        ['Другие куртки', wbEstimate.otherJackets, '#f4bf88', 'Прокси: 11,78 млрд ₽ × 3,65 млрд ₽ выкупов ветровок, косух и пуховиков ÷ 22,21 млрд ₽ выкупов выбранной верхней одежды WB.'],
+        ['Плащи и тренчи', wbEstimate.raincoats, rose, 'Прокси: 11,78 млрд ₽ × (641 млн ₽ выкупов плащей + 521 млн ₽ тренчкотов) ÷ 22,21 млрд ₽ выкупов выбранной верхней одежды WB.'],
+        ['Остальное', middleUp - suits - outerwear, rest, 'Расчётный остаток после вычета костюмной группы и верхней одежды.']
+      ]
+    }, {
+      label: 'Retail.ru', total: middleUp, center: '≈44', unit: 'млрд ₽',
+      sources: [reports.retailOuterwear, reports.weights, reports.datamarket, reports.datamarketPrices],
+      methodNote: 'Пропорция 8,3 : 8,7 из продаж сайтов 12 брендов без отдельного среза по полу. Плащи и тренчи — по ЧЗ, костюмная группа — по Росстату.',
+      parts: [
+        ['Костюмная группа', suits, blue, 'Оценка по весам ИПЦ Росстата. Retail.ru отдельно публикует жакеты и пиджаки без выделения костюмной группы.'],
+        ['Пальто', retailCoats, '#8ed1db', 'Прокси: (11,78 млрд ₽ верхней одежды − 367 млн ₽ плащей и тренчей) × 8,3 ÷ (8,3 + 8,7). Доля пальто в выручке выборки Retail.ru — 8,3%.'],
+        ['Куртки и пуховики', retailJackets, '#ab95f6', 'Прокси: (11,78 млрд ₽ верхней одежды − 367 млн ₽ плащей и тренчей) × 8,7 ÷ (8,3 + 8,7). Retail.ru публикует куртки и пуховики одной строкой.'],
+        ['Плащи и тренчи', raincoats, rose, 'В Retail.ru отдельной строки нет. Сохранена оценка по «Честному знаку»: 1,6% в штуках × средняя цена 5 695 ₽, с нормировкой внутри верхней одежды.'],
+        ['Остальное', middleUp - suits - outerwear, rest, 'Расчётный остаток после вычета костюмной группы и верхней одежды.']
+      ]
+    }]
   }
 ];
 
@@ -2253,7 +2303,7 @@ function sector(start, end) {
 const grid = document.querySelector('#market-rings');
 const cards = charts.map((chart, index) => {
   const card = document.createElement('article');
-  card.className = 'ring-card';
+  card.className = chart.variantLabel ? 'ring-card ring-card-method' : 'ring-card';
   card.setAttribute('aria-labelledby', `ring-title-${index}`);
   card.innerHTML = `
     <h3 id="ring-title-${index}"></h3>
@@ -2263,13 +2313,20 @@ const cards = charts.map((chart, index) => {
       <div class="ring-center"><span class="ring-total"></span><span class="ring-unit"></span></div>
     </div>
     <ul class="legend" id="ring-legend-${index}"></ul>
+    <p class="ring-method-note" hidden></p>
     <div class="chart-sources"></div>
     <div class="tooltip" hidden aria-hidden="true"><strong></strong><p></p></div>`;
   card.querySelector('h3').textContent = chart.title;
-  card.querySelector('.scope').textContent = chart.scope;
+  card.querySelector('.scope').textContent = chart.scope ?? '';
 
+  grid.append(card);
+  return card;
+});
+
+function drawRingSources(card, items) {
   const sources = card.querySelector('.chart-sources');
-  chart.sources.forEach(([name, url], i) => {
+  sources.replaceChildren();
+  items.forEach(([name, url], i) => {
     if (i) sources.append(' · ');
     const link = document.createElement(url ? 'a' : 'span');
     link.textContent = name;
@@ -2280,9 +2337,7 @@ const cards = charts.map((chart, index) => {
     }
     sources.append(link);
   });
-  grid.append(card);
-  return card;
-});
+}
 
 const tooltipControls = charts.map((chart, index) => {
   const card = cards[index];
@@ -2326,6 +2381,10 @@ const tooltipControls = charts.map((chart, index) => {
     segments.length = 0;
     center.querySelector('.ring-total').textContent = data.center;
     center.querySelector('.ring-unit').textContent = data.unit;
+    const methodNote = card.querySelector('.ring-method-note');
+    methodNote.textContent = data.methodNote ?? '';
+    methodNote.hidden = !data.methodNote;
+    drawRingSources(card, data.sources ?? chart.sources);
     data.parts.forEach(([name, value, color, note], i) => {
       const portion = value / data.total;
       const sweep = portion * Math.PI * 2;
@@ -2355,7 +2414,7 @@ const tooltipControls = charts.map((chart, index) => {
       function toggle() {
         tooltipControls.forEach((control, other) => { if (other !== index) control.clear(); });
         pinned = pinned === i ? null : i;
-        const linksForward = index === 1 ? i < 2 : i === 0 && variant === 0;
+        const linksForward = index === 1 ? i < 2 : index === 2 && i === 0 && variant === 0;
         if (pinned !== null && index === 1 && linksForward) tooltipControls[index + 1].selectVariant(i);
         cards[index + 1]?.toggleAttribute('data-linked', pinned !== null && linksForward);
         render();
@@ -2386,7 +2445,7 @@ const tooltipControls = charts.map((chart, index) => {
     button.setAttribute('aria-pressed', String(i === variant));
     button.setAttribute('aria-controls', legend.id);
     button.addEventListener('click', () => {
-      tooltipControls[index - 1].clear();
+      if (!chart.variantLabel) tooltipControls[index - 1].clear();
       selectVariant(i);
     });
     return button;
@@ -2402,9 +2461,11 @@ const tooltipControls = charts.map((chart, index) => {
 
   if (options) {
     const switcher = document.createElement('div');
-    switcher.className = 'season-set ring-switch';
+    switcher.className = chart.variantLabel
+      ? 'season-set ring-switch ring-switch-method'
+      : 'season-set ring-switch ring-switch-gender';
     switcher.setAttribute('role', 'group');
-    switcher.setAttribute('aria-label', 'Выбор рынка одежды');
+    switcher.setAttribute('aria-label', chart.variantLabel ?? 'Выбор рынка одежды');
     switcher.append(...options);
     card.querySelector('.scope').append(switcher);
     center.setAttribute('aria-live', 'polite');
