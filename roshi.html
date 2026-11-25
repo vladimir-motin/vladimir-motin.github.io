@@ -2154,8 +2154,7 @@ const reports = {
   datamarket: ['Честный знак, доли продаж (Excel)', 'https://датамаркет.честныйзнак.рф/bi/api/reviews/reports/export_to_excel/f85c5e3f-0457-40e4-977e-b3aad2c94e19'],
   datamarketPrices: ['Честный знак, средние цены (Excel)', 'https://датамаркет.честныйзнак.рф/bi/api/reviews/reports/export_to_excel/0cf78fa3-1231-4fd1-af1e-069eeb982abe'],
   roshiJackets: ['Каталог ROSHI, мужские куртки', 'https://roshi.fashion/bombersm'],
-  wbOuterwear: ['StartMarket / WB, «Анализ ниш», 31.08–29.09.2026', 'https://startmarket.pro/articles/reyting-nish-wildberries-odezhda-sentyabr-2026/'],
-  retailOuterwear: ['Another Fashion Agency на Retail.ru, август 2025 — июль 2026', 'https://www.retail.ru/tovar_na_polku/kalendar-sprosa-v-fashion-e-commerce-kogda-i-kakie-tovary-vybirayut-pokupateli/']
+  wbOuterwear: ['StartMarket / WB, «Анализ ниш», 31.08–29.09.2026', 'https://startmarket.pro/articles/reyting-nish-wildberries-odezhda-sentyabr-2026/']
 };
 
 const apparel = 2775.801;
@@ -2199,13 +2198,6 @@ const wbOuterwearTotal = Object.values(wbOuterwear).reduce((sum, amount) => sum 
 const wbEstimate = Object.fromEntries(
   Object.entries(wbOuterwear).map(([group, amount]) => [group, outerwear * amount / wbOuterwearTotal])
 );
-
-// Доли в выручке всех товаров выборки Retail.ru. Переносим только отношение
-// двух опубликованных строк на верхнюю одежду за вычетом плащей по ЧЗ.
-const retailOuterwearShares = {coats: 8.3, jackets: 8.7};
-const retailCoats = (outerwear - raincoats) * retailOuterwearShares.coats /
-  (retailOuterwearShares.coats + retailOuterwearShares.jackets);
-const retailJackets = outerwear - raincoats - retailCoats;
 
 const charts = [
   {
@@ -2267,17 +2259,6 @@ const charts = [
         ['Типы курток из каталога ROSHI', wbEstimate.roshiJackets, '#ab95f6', 'Прокси: 11,78 млрд ₽ × 13,88 млрд ₽ выкупов курток, бомберов и парок ÷ 22,21 млрд ₽ выкупов выбранной верхней одежды WB.'],
         ['Другие куртки', wbEstimate.otherJackets, '#f4bf88', 'Прокси: 11,78 млрд ₽ × 3,65 млрд ₽ выкупов ветровок, косух и пуховиков ÷ 22,21 млрд ₽ выкупов выбранной верхней одежды WB.'],
         ['Плащи и тренчи', wbEstimate.raincoats, rose, 'Прокси: 11,78 млрд ₽ × (641 млн ₽ выкупов плащей + 521 млн ₽ тренчкотов) ÷ 22,21 млрд ₽ выкупов выбранной верхней одежды WB.'],
-        ['Остальное', middleUp - suits - outerwear, rest, 'Расчётный остаток после вычета костюмной группы и верхней одежды.']
-      ]
-    }, {
-      label: 'Retail.ru', total: middleUp, center: '≈44', unit: 'млрд ₽',
-      sources: [reports.retailOuterwear, reports.weights, reports.datamarket, reports.datamarketPrices],
-      methodNote: 'Пропорция 8,3 : 8,7 из продаж сайтов 12 брендов без отдельного среза по полу. Плащи и тренчи — по ЧЗ, костюмная группа — по Росстату.',
-      parts: [
-        ['Костюмная группа', suits, blue, 'Оценка по весам ИПЦ Росстата. Retail.ru отдельно публикует жакеты и пиджаки без выделения костюмной группы.'],
-        ['Пальто', retailCoats, '#8ed1db', 'Прокси: (11,78 млрд ₽ верхней одежды − 367 млн ₽ плащей и тренчей) × 8,3 ÷ (8,3 + 8,7). Доля пальто в выручке выборки Retail.ru — 8,3%.'],
-        ['Куртки и пуховики', retailJackets, '#ab95f6', 'Прокси: (11,78 млрд ₽ верхней одежды − 367 млн ₽ плащей и тренчей) × 8,7 ÷ (8,3 + 8,7). Retail.ru публикует куртки и пуховики одной строкой.'],
-        ['Плащи и тренчи', raincoats, rose, 'В Retail.ru отдельной строки нет. Сохранена оценка по «Честному знаку»: 1,6% в штуках × средняя цена 5 695 ₽, с нормировкой внутри верхней одежды.'],
         ['Остальное', middleUp - suits - outerwear, rest, 'Расчётный остаток после вычета костюмной группы и верхней одежды.']
       ]
     }]
