@@ -1806,7 +1806,7 @@ a.social-audience-row:hover .social-audience-number, a.social-audience-row:focus
                 <div><dt>Качественное описание</dt><dd>Мужчины, которым нужна верхняя одежда на каждый день. При выборе важны тепло, защита от ветра и удобство в движении.</dd></div>
                 <div><dt>Триггер покупки</dt><dd>Похолодание или замена изношенной куртки. Максимум запросов в 2025 году пришёлся на октябрь.</dd></div>
               </dl>
-              <p class="brief-segment-basis" data-for-measure="budget">35,90 млрд руб. мужской верхней одежды × 68,34% денежной доли курток. <span>«Честный знак», табл. 2 и 4</span>.</p>
+              <p class="brief-segment-basis" data-for-measure="budget">35,90 млрд руб. мужской верхней одежды × 68,34% денежной доли курток. «Честный знак» — <a href="https://датамаркет.честныйзнак.рф/bi/api/reviews/reports/export_to_excel/f85c5e3f-0457-40e4-977e-b3aad2c94e19" target="_blank" rel="noopener noreferrer">доли продаж (Excel)</a> и <a href="https://датамаркет.честныйзнак.рф/bi/api/reviews/reports/export_to_excel/0cf78fa3-1231-4fd1-af1e-069eeb982abe" target="_blank" rel="noopener noreferrer">цены (Excel)</a>.</p>
             </div>
             <div class="brief-segment-panel" id="brief-segment-overcoats" data-brief-panel="overcoats" hidden>
               <h3>Покупатели мужских пальто</h3>
@@ -1814,7 +1814,7 @@ a.social-audience-row:hover .social-audience-number, a.social-audience-row:focus
                 <div><dt>Качественное описание</dt><dd>Мужчины, которые выбирают более собранную верхнюю одежду для работы и города. Пальто должно сочетаться с костюмом или повседневным комплектом.</dd></div>
                 <div><dt>Триггер покупки</dt><dd>Похолодание и обновление осеннего гардероба. Максимум запросов в 2025 году пришёлся на октябрь.</dd></div>
               </dl>
-              <p class="brief-segment-basis" data-for-measure="budget">35,90 млрд руб. мужской верхней одежды × 16,52% денежной доли пальто. <span>«Честный знак», табл. 2 и 4</span>.</p>
+              <p class="brief-segment-basis" data-for-measure="budget">35,90 млрд руб. мужской верхней одежды × 16,52% денежной доли пальто. «Честный знак» — <a href="https://датамаркет.честныйзнак.рф/bi/api/reviews/reports/export_to_excel/f85c5e3f-0457-40e4-977e-b3aad2c94e19" target="_blank" rel="noopener noreferrer">доли продаж (Excel)</a> и <a href="https://датамаркет.честныйзнак.рф/bi/api/reviews/reports/export_to_excel/0cf78fa3-1231-4fd1-af1e-069eeb982abe" target="_blank" rel="noopener noreferrer">цены (Excel)</a>.</p>
             </div>
             <div class="brief-segment-panel" id="brief-segment-day-suits" data-brief-panel="day-suits" hidden>
               <h3>Покупатели мужских костюмов-двоек</h3>
@@ -2148,7 +2148,8 @@ const reports = {
   weights: ['Росстат, веса ИПЦ, лист 2025', null],
   fcg: ['FCG, 2026, с. 13', 'https://fashionconsulting.ru/wp-content/uploads/2026/04/otchet_fcg_po_rossijskomu_modnomu_rynku_aprel_2026.pdf#page=13'],
   yakov: ['Яков и Партнёры, 2023, с. 5', 'https://yakovpartners.ru/upload/iblock/0e5/lfifq29qgik06e7tw6ds3q0g40tk49j2/Fashion-report_RU.pdf#page=5'],
-  datamarket: ['Честный знак, I–III кв. 2025, табл. 2 и 4', null],
+  datamarket: ['Честный знак, доли продаж (Excel)', 'https://датамаркет.честныйзнак.рф/bi/api/reviews/reports/export_to_excel/f85c5e3f-0457-40e4-977e-b3aad2c94e19'],
+  datamarketPrices: ['Честный знак, средние цены (Excel)', 'https://датамаркет.честныйзнак.рф/bi/api/reviews/reports/export_to_excel/0cf78fa3-1231-4fd1-af1e-069eeb982abe'],
   roshiJackets: ['Каталог ROSHI, мужские куртки', 'https://roshi.fashion/bombersm']
 };
 
@@ -2221,7 +2222,7 @@ const charts = [
   },
   {
     title: 'Мужской middle-up по изделиям', total: middleUp, center: '≈44', unit: 'млрд ₽',
-    scope: 'Расчётная разбивка', sources: [reports.weights, reports.datamarket, reports.roshiJackets],
+    scope: 'Расчётная разбивка', sources: [reports.weights, reports.datamarket, reports.datamarketPrices, reports.roshiJackets],
     parts: [
       ['Костюмная группа', suits, blue, 'Прокси: 0,098 ÷ 1,209 по весам ИПЦ Росстата. Костюм-двойка представляет группу близких изделий.'],
       ['Пальто', coats, '#8ed1db', 'Прокси: доля штук (6%) × средняя цена (8 059 ₽), затем нормировка внутри верхней одежды. Панель «Честного знака».'],
